@@ -17,6 +17,7 @@ public class SettingsActivity extends AppCompatActivity {
     EditText usernameEditText;
     EditText typeEditText;
     EditText osEditText;
+    EditText macEditText;
     Button savePrefButton;
 
     @Override
@@ -31,22 +32,26 @@ public class SettingsActivity extends AppCompatActivity {
         typeEditText = findViewById(R.id.deviceTypeEditText);
         osEditText = findViewById(R.id.deviceOSEditText);
         savePrefButton = findViewById(R.id.savePrefButton);
+        macEditText = findViewById(R.id.deviceMACEditText);
 
         savePrefButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(!usernameEditText.getText().toString().matches("")
                         && !typeEditText.getText().toString().matches("")
-                        && !osEditText.getText().toString().matches("")) {
-
-                    editor.putString("username", usernameEditText.getText().toString());
-                    editor.putString("type", typeEditText.getText().toString());
-                    editor.putString("os", osEditText.getText().toString());
-                    editor.commit();
-                    finish();
+                        && !osEditText.getText().toString().matches("")){
+                            if(macEditText.getText().toString().matches("^([0-9]|[a-f]){2}:([0-9]|[a-f]){2}:([0-9]|[a-f]){2}:([0-9]|[a-f]){2}:([0-9]|[a-f]){2}:([0-9]|[a-f]){2}$")) {
+                                editor.putString("username", usernameEditText.getText().toString());
+                                editor.putString("type", typeEditText.getText().toString());
+                                editor.putString("os", osEditText.getText().toString());
+                                editor.putString("mac", macEditText.getText().toString());
+                                editor.commit();
+                                finish();
+                            }else{
+                                Toast.makeText(getApplicationContext(), "MAC address is invalid format!", Toast.LENGTH_SHORT).show();
+                            }
                 }else{
-                    Toast.makeText(getApplicationContext(), "Please Enter a Value for each Field!",
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Please Enter a Value for each Field!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -59,10 +64,12 @@ public class SettingsActivity extends AppCompatActivity {
         String username = pref.getString("username", null);
         String type = pref.getString("type", null);
         String os = pref.getString("os", null);
+        String mac = pref.getString("mac", null);
 
         usernameEditText.setText(username);
         typeEditText.setText(type);
         osEditText.setText(os);
+        macEditText.setText(mac);
 
     }
 }

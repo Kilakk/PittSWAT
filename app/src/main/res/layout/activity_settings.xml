@@ -31,20 +31,29 @@
 
     </android.support.v7.widget.Toolbar>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/settingsInstructionsTV"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_settings"
+        android:textColor="@android:color/holo_red_light"
+        android:layout_margin="8dp"
+        android:text="These settings should only be set once per device. Check tech guide for instructions on what should be entered in each field."/>
+
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/deviceUsernameEditText"
         android:layout_margin="8dp"
         android:hint="Username (e.g. CSSDSTD3)"
-        app:layout_constraintTop_toBottomOf="@id/toolbar_settings"/>
+        app:layout_constraintTop_toBottomOf="@id/settingsInstructionsTV"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/deviceTypeEditText"
         android:layout_margin="8dp"
-        android:hint="Device Type (For Kindle just use 'Kindle')"
+        android:hint="Device Type"
         app:layout_constraintTop_toBottomOf="@id/deviceUsernameEditText"/>
 
     <EditText
@@ -52,14 +61,22 @@
         android:layout_height="wrap_content"
         android:id="@+id/deviceOSEditText"
         android:layout_margin="8dp"
-        android:hint="Device OS (For Kindle just use 'Kindle')"
+        android:hint="Device OS"
         app:layout_constraintTop_toBottomOf="@id/deviceTypeEditText"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/deviceMACEditText"
+        android:layout_margin="8dp"
+        android:hint="Device MAC"
+        app:layout_constraintTop_toBottomOf="@id/deviceOSEditText"/>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/savePrefButton"
         android:text="Save Preferences"
-        app:layout_constraintTop_toBottomOf="@id/deviceOSEditText"
+        app:layout_constraintTop_toBottomOf="@id/deviceMACEditText"
         android:layout_margin="8dp"/>
 </android.support.constraint.ConstraintLayout>

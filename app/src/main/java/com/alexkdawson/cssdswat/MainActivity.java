@@ -35,16 +35,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //TODO check these when button is clicked too
-        // Here, thisActivity is the current activity
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},0);
-        }
-
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -69,6 +59,13 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.CHANGE_WIFI_STATE},3);
         }
 
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},4);
+        }
 
 
         beginSessionButton = findViewById(R.id.beginSessionButton);
@@ -103,8 +100,9 @@ public class MainActivity extends AppCompatActivity {
                     String username = pref.getString("username", null);
                     String type = pref.getString("type", null);
                     String os = pref.getString("os", null);
+                    String mac = pref.getString("mac", null);
 
-                    if (username == null || type == null || os == null) {
+                    if (username == null || type == null || os == null || mac == null) {
                         Intent settingsActIntent = new Intent(getBaseContext(), SettingsActivity.class);
                         startActivity(settingsActIntent);
                         Toast.makeText(getApplicationContext(), "Please Enter Information About Device!",
@@ -122,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
                         swatActIntent.putExtra("username", username);
                         swatActIntent.putExtra("deviceType", type);
                         swatActIntent.putExtra("deviceOS", os);
+                        swatActIntent.putExtra("mac", mac);
 
                         startActivity(swatActIntent);
                     } else {
@@ -144,16 +143,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public File createSessionFile(){
-        String pattern = "yyyy-MM-dd";
+        String pattern = "yyyy-MM-dd HH_mm_ss";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 
         String date = simpleDateFormat.format(new Date());
 
-        String filename = date + " - " + buildingEditText.getText().toString();
+        String filename = date + " - " + buildingEditText.getText().toString()+".csv";
 
         File outputFile;
         try {
-            Toast.makeText(getApplicationContext(), "Hi" + getStorageDirectory().getAbsolutePath(),
+            Toast.makeText(getApplicationContext(), "Hi" + getStorageDirectory(),
                     Toast.LENGTH_LONG).show();
             outputFile = new File(getStorageDirectory(), filename);
             int n = 2;
@@ -220,7 +219,11 @@ public class MainActivity extends AppCompatActivity {
     public File getStorageDirectory() throws FileNotFoundException{
         // Get the directory for the user's public pictures directory.
         if (isExternalStorageWritable()) {
-            File file = new File(getExternalFilesDir(null), "com.alexkdawson.cssdswat");
+            File file = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOCUMENTS), "SWAT Files");
+            if(!file.exists()){
+                file.mkdirs();
+            }
             return file;
         }else{
             throw new FileNotFoundException();
