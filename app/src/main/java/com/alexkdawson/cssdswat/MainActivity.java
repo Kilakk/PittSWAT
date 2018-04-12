@@ -6,7 +6,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,11 +19,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystemNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,7 +35,9 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
     public Button beginSessionButton;
     public Button settingsButton;
+    public Button continueSessionButton;
     public EditText buildingEditText;
+    public RadioGroup radioGroup;
     SharedPreferences pref;
 
     @Override
@@ -69,8 +79,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         beginSessionButton = findViewById(R.id.beginSessionButton);
+        continueSessionButton = findViewById(R.id.continueSessionButton);
         buildingEditText = findViewById(R.id.buildingEditText);
         settingsButton = findViewById(R.id.settings_button_main);
+        radioGroup = findViewById(R.id.radioGroup);
 
         pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
         String username = pref.getString("username", null);
@@ -102,15 +114,18 @@ public class MainActivity extends AppCompatActivity {
                     String os = pref.getString("os", null);
                     String mac = pref.getString("mac", null);
 
+                    int radioId = radioGroup.getCheckedRadioButtonId();
+
+
                     if (username == null || type == null || os == null || mac == null) {
                         Intent settingsActIntent = new Intent(getBaseContext(), SettingsActivity.class);
                         startActivity(settingsActIntent);
                         Toast.makeText(getApplicationContext(), "Please Enter Information About Device!",
                                 Toast.LENGTH_LONG).show();
-                    } else if (!buildingEditText.getText().toString().matches("")) {
-
+                    } else if (!buildingEditText.getText().toString().matches("") && radioId != -1) {
+                        RadioButton radioButton = radioGroup.findViewById(radioId);
                         Intent swatActIntent = new Intent(getBaseContext(), SwatActivity.class);
-                        File outputFile = createSessionFile();
+                        File outputFile = createSessionFile(radioButton.getText().toString());
                         if(outputFile == null){
                             return;
                         }
@@ -121,11 +136,56 @@ public class MainActivity extends AppCompatActivity {
                         swatActIntent.putExtra("deviceType", type);
                         swatActIntent.putExtra("deviceOS", os);
                         swatActIntent.putExtra("mac", mac);
+                        swatActIntent.putExtra("networkToTest", radioButton.getText().toString());
 
                         startActivity(swatActIntent);
                     } else {
                         Toast.makeText(getApplicationContext(), "Please Enter Building Name!",
                                 Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
+        continueSessionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (ActivityCompat.checkSelfPermission(getBaseContext(),
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(), "This Device does not have access to write to external storage!" +
+                            " Please enable this permission in settings!", Toast.LENGTH_LONG).show();
+                }else {
+
+                    pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+                    String username = pref.getString("username", null);
+                    String type = pref.getString("type", null);
+                    String os = pref.getString("os", null);
+                    String mac = pref.getString("mac", null);
+
+                    int radioId = radioGroup.getCheckedRadioButtonId();
+
+
+                    if (username == null || type == null || os == null || mac == null) {
+                        Intent settingsActIntent = new Intent(getBaseContext(), SettingsActivity.class);
+                        startActivity(settingsActIntent);
+                        Toast.makeText(getApplicationContext(), "Please Enter Information About Device!",
+                                Toast.LENGTH_LONG).show();
+                    } else {
+
+                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                        intent.setType("text/*");
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+                        try {
+                            startActivityForResult(
+                                    Intent.createChooser(intent, "Select a File to Upload"),
+                                    0);
+                        } catch (android.content.ActivityNotFoundException ex) {
+                            // Potentially direct the user to the Market with a Dialog
+                            Toast.makeText(MainActivity.this, "Please install a File Manager.", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             }
@@ -142,13 +202,81 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public File createSessionFile(){
-        String pattern = "yyyy-MM-dd HH_mm_ss";
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case 0: //FILE SELECT
+                if (resultCode == RESULT_OK) {
+                    // Get the Uri of the selected file
+                    Uri uri = data.getData();
+                    Log.d("TAG", "File Uri: " + uri.toString());
+                    // Get the path
+                    String path = "";
+                    try {
+                        path = getPath(MainActivity.this, uri);
+                    }catch (Exception e){
+                        Toast.makeText(MainActivity.this, "Error loading file!", Toast.LENGTH_SHORT).show();
+                    }
+
+
+
+
+
+                    Log.d("TAG", "File Path: " + path);
+                    // Get the file instance
+                    // File file = new File(path);
+                    // Initiate the upload
+
+                    File outputFile = new File(path);
+                    if(!outputFile.exists()){
+                        Toast.makeText(MainActivity.this, "!!" + path + " File does not exist!", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+
+
+                    pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+                    String username = pref.getString("username", null);
+                    String type = pref.getString("type", null);
+                    String os = pref.getString("os", null);
+                    String mac = pref.getString("mac", null);
+
+                    int radioId = radioGroup.getCheckedRadioButtonId();
+
+
+                    if (username == null || type == null || os == null || mac == null) {
+                        Intent settingsActIntent = new Intent(getBaseContext(), SettingsActivity.class);
+                        startActivity(settingsActIntent);
+                        Toast.makeText(getApplicationContext(), "Please Enter Information About Device!",
+                                Toast.LENGTH_LONG).show();
+                    } else {
+
+                        Intent swatActIntent = new Intent(getBaseContext(), SwatActivity.class);
+
+                        swatActIntent.putExtra("outputFile", outputFile);
+                        swatActIntent.putExtra("username", username);
+                        swatActIntent.putExtra("deviceType", type);
+                        swatActIntent.putExtra("deviceOS", os);
+                        swatActIntent.putExtra("mac", mac);
+
+
+                        startActivity(swatActIntent);
+                    }
+
+                }
+                break;
+        }
+    }
+
+    public File createSessionFile(String networkToTest){
+        String pattern = "yyyy-MM-dd HH_mm_" +
+                "ss";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 
         String date = simpleDateFormat.format(new Date());
 
-        String filename = date + " - " + buildingEditText.getText().toString()+".csv";
+        String filename = date + " - " + buildingEditText.getText().toString()+ " - " + networkToTest + ".csv";
 
         File outputFile;
         try {
@@ -229,5 +357,9 @@ public class MainActivity extends AppCompatActivity {
             throw new FileNotFoundException();
 
         }
+    }
+
+    public String getPath(Context context, Uri uri) throws URISyntaxException {
+       return  uri.toString();
     }
 }

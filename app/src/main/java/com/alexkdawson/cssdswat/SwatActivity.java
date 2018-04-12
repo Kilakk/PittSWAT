@@ -39,6 +39,7 @@ public class SwatActivity extends AppCompatActivity {
     public String deviceType;
     public String deviceOS;
     public String deviceMac;
+    public String networkToTest;
 
     public String[] stagingArr;
     ArrayList<String[]> swatList;
@@ -48,11 +49,13 @@ public class SwatActivity extends AppCompatActivity {
     public Button doASwatButton;
     public Button speedTestButton;
     public Button emailReadingButton;
+    public Button endSwatButton;
     public EditText locationEditText;
     public EditText uploadEditText;
     public EditText downloadEditText;
     public ListView swatListView;
     public TextView readingsDoneCount;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +68,8 @@ public class SwatActivity extends AppCompatActivity {
         deviceType = (String)getIntent().getExtras().get("deviceType");
         deviceOS = (String)getIntent().getExtras().get("deviceOS");
         deviceMac = (String)getIntent().getExtras().get("mac");
+        networkToTest = (String)getIntent().getExtras().get("networkToTest");
+
 
         doASwatButton = findViewById(R.id.doASwatButton);
         locationEditText = findViewById(R.id.locationEditText);
@@ -74,6 +79,7 @@ public class SwatActivity extends AppCompatActivity {
         speedTestButton = findViewById(R.id.speedTestButton);
         readingsDoneCount = findViewById(R.id.readings_done_count);
         emailReadingButton = findViewById(R.id.email_readings_btn);
+        endSwatButton = findViewById(R.id.end_swat_btn);
 
         swatList = new ArrayList<>();
         swatListString = new ArrayList<>();
@@ -90,19 +96,25 @@ public class SwatActivity extends AppCompatActivity {
                     "Upload (Mbps)",
                     "signal strength (dBm)",
                     "AP MAC address",
-                    "non-pitt SSID with signal stronger than -80"};
+                    "non-pitt SSID with signal stronger than -80",
+                    "Network"};
 
         swatList.add(tempArr);
-        stagingArr = new String[12];
+        stagingArr = new String[13];
 
         doASwatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(validateFields()) {
-                    pullSwatInfo();
-                    uploadEditText.setText("");
-                    downloadEditText.setText("");
-                    locationEditText.setText("");
+                    if(networkToTest.equals(getNetworkSSID()) || networkToTest.equals("Other")) {
+                        pullSwatInfo();
+                        uploadEditText.setText("");
+                        downloadEditText.setText("");
+                        locationEditText.setText("");
+                    }else{
+                        Toast.makeText(SwatActivity.this, "You are not currently connected to: " + networkToTest +". This was" +
+                                " selected as the network for this session, please switch networks.", Toast.LENGTH_LONG).show();
+                    }
                 }else{
                     Toast.makeText(SwatActivity.this, "Please fill in all fields before doing a swat!", Toast.LENGTH_SHORT).show();
                 }
@@ -137,6 +149,35 @@ public class SwatActivity extends AppCompatActivity {
             }
         });
 
+        endSwatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(SwatActivity.this);
+
+                builder.setTitle("You are about to end this swat!");
+                builder.setMessage("Are you sure? (Readings are available in the documents folder)");
+
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        finish();
+                    }
+                });
+
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        });
+
         arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, swatListString);
         swatListView.setAdapter(arrayAdapter);
 
@@ -161,6 +202,7 @@ public class SwatActivity extends AppCompatActivity {
                 TextView diagSignalStr = dialog.findViewById(R.id.diag_signal_str);
                 TextView diagApMac = dialog.findViewById(R.id.diag_ap_mac);
                 TextView diagNonPitt = dialog.findViewById(R.id.diag_non_pitt);
+                TextView diagNetwork = dialog.findViewById(R.id.diag_network);
 
                 diagDateTime.setText(currSwat[1] + " " + currSwat[0]);
                 diagUsername.setText(currSwat[2]);
@@ -171,6 +213,7 @@ public class SwatActivity extends AppCompatActivity {
                 diagSignalStr.setText(currSwat[9]);
                 diagApMac.setText(currSwat[10]);
                 diagNonPitt.setText(currSwat[11]);
+                diagNetwork.setText(currSwat[12]);
 
                 Button dialogButton = (Button) dialog.findViewById(R.id.diag_delete_button);
                 // if button is clicked, close the custom dialog
@@ -227,6 +270,7 @@ public class SwatActivity extends AppCompatActivity {
         stagingArr[9]   = getSignalStrength();
         stagingArr[10]  = getApMac();
         stagingArr[11]  = getNonPittSsid();
+        stagingArr[12]  = getNetworkSSID();
 
         String[] deepCopy = new String[stagingArr.length];
         String deepCopyString = "";
@@ -287,7 +331,7 @@ public class SwatActivity extends AppCompatActivity {
 
 
         for (ScanResult s : wifiScan) {
-            if (s.level > -80 && !s.SSID.equals("WIRELESS-PITTNET-FAST") && !s.SSID.equals("WIRELESS-PITTNET") && !s.SSID.equals("eduroam")) {
+            if (s.level > -80 && !s.SSID.contains("PITT") && !s.SSID.equals("eduroam")) {
             nonPitt.add(s.SSID);
             }
         }
@@ -320,10 +364,10 @@ public class SwatActivity extends AppCompatActivity {
             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile, false)); //really inefficient but allows for easier modification i guess :|
             for(int i = 0; i < swatList.size(); i++) {
                 for(int j = 0; j < swatList.get(i).length; j++){
-                    if(j != 11){
+                    if(j != swatList.get(i).length - 1){
                         writer.append("\"" + swatList.get(i)[j] + "\",");
                     }else{
-                        writer.append("\"" + swatList.get(i)[j] + "\"\n");
+                        writer.append("" + swatList.get(i)[j] + "\n");
                     }
                 }
             }
@@ -355,5 +399,10 @@ public class SwatActivity extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+
+    public String getNetworkSSID(){
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        return wifiManager.getConnectionInfo().getSSID();
     }
 }
