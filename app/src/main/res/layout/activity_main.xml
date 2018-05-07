@@ -55,6 +55,7 @@
         />
 
     <EditText
+        android:backgroundTint="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/buildingEditText"
@@ -68,6 +69,8 @@
         />
 
     <Button
+        android:backgroundTint="@color/colorAccent"
+        android:textColor="@android:color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/beginSessionButton"
@@ -77,20 +80,21 @@
         app:layout_constraintRight_toRightOf="parent"
         />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/continueSessionButton"
-        android:text="Load Previous SWAT"
-        app:layout_constraintTop_toBottomOf="@id/beginSessionButton"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+    <!--<Button-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/continueSessionButton"-->
+        <!--android:text="Load Previous SWAT"-->
+        <!--app:layout_constraintTop_toBottomOf="@id/beginSessionButton"-->
+        <!--app:layout_constraintLeft_toLeftOf="parent"-->
+        <!--app:layout_constraintRight_toRightOf="parent"/>-->
 
     <RadioGroup
+        android:backgroundTint="@color/colorAccent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/radioGroup"
-        app:layout_constraintTop_toBottomOf="@id/continueSessionButton"
+        app:layout_constraintTop_toBottomOf="@id/beginSessionButton"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:orientation="vertical"
@@ -102,16 +106,19 @@
             android:text="Which network will you be testing?"
             android:textColor="@android:color/black"/>
         <RadioButton
+            android:buttonTint="@color/colorPrimary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="WIRELESS-PITTNET"/>
 
         <RadioButton
+            android:buttonTint="@color/colorPrimary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="WIRELESS-PITTNET-FAST"/>
 
         <RadioButton
+            android:buttonTint="@color/colorPrimary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Other"/>

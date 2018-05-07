@@ -41,6 +41,7 @@
         android:text="These settings should only be set once per device. Check tech guide for instructions on what should be entered in each field."/>
 
     <EditText
+        android:backgroundTint="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/deviceUsernameEditText"
@@ -49,6 +50,7 @@
         app:layout_constraintTop_toBottomOf="@id/settingsInstructionsTV"/>
 
     <EditText
+        android:backgroundTint="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/deviceTypeEditText"
@@ -57,6 +59,7 @@
         app:layout_constraintTop_toBottomOf="@id/deviceUsernameEditText"/>
 
     <EditText
+        android:backgroundTint="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/deviceOSEditText"
@@ -65,6 +68,7 @@
         app:layout_constraintTop_toBottomOf="@id/deviceTypeEditText"/>
 
     <EditText
+        android:backgroundTint="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/deviceMACEditText"
@@ -73,6 +77,8 @@
         app:layout_constraintTop_toBottomOf="@id/deviceOSEditText"/>
 
     <Button
+        android:backgroundTint="@color/colorAccent"
+        android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/savePrefButton"

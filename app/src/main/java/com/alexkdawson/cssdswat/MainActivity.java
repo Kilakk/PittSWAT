@@ -33,9 +33,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
+/*Supposed to allow files to be loaded will mark all related code with `TODO load files`*/
+//  public Button continueSessionButton;
+
+    /*Views*/
     public Button beginSessionButton;
     public Button settingsButton;
-    public Button continueSessionButton;
     public EditText buildingEditText;
     public RadioGroup radioGroup;
     SharedPreferences pref;
@@ -45,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /* START PERMISSION CHECK */
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -76,19 +80,24 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},4);
         }
+        /* END PERMISSION CHECK */
 
+/* TODO Load files */
+//      continueSessionButton = findViewById(R.id.continueSessionButton);
 
+        /* Assign views */
         beginSessionButton = findViewById(R.id.beginSessionButton);
-        continueSessionButton = findViewById(R.id.continueSessionButton);
         buildingEditText = findViewById(R.id.buildingEditText);
         settingsButton = findViewById(R.id.settings_button_main);
         radioGroup = findViewById(R.id.radioGroup);
 
+        /*Load saved device data from shared preferences (this is the data saved in the settings activity)*/
         pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
         String username = pref.getString("username", null);
         String type = pref.getString("type", null);
         String os = pref.getString("os", null);
 
+        /*If any of the above fields are blank, open up settings and prompt user to fill them in */
         if(username == null || type == null || os == null){
             Intent settingsActIntent = new Intent(getBaseContext(), SettingsActivity.class);
             startActivity(settingsActIntent);
@@ -96,33 +105,38 @@ public class MainActivity extends AppCompatActivity {
                     Toast.LENGTH_LONG).show();
         }
 
-
+        /* What to do when you the begin swat button is clicked */
         beginSessionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                /*If we don't have write permissions, stop and tell the user */
                 if (ActivityCompat.checkSelfPermission(getBaseContext(),
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getApplicationContext(), "This Device does not have access to write to external storage!" +
                                     " Please enable this permission in settings!", Toast.LENGTH_LONG).show();
                 }else {
-
+                    /* Update shared preferences in case the user changed them */
                     pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
                     String username = pref.getString("username", null);
                     String type = pref.getString("type", null);
                     String os = pref.getString("os", null);
                     String mac = pref.getString("mac", null);
 
+                    /* assign the radio group so we can check what kind of swat they are doing */
                     int radioId = radioGroup.getCheckedRadioButtonId();
 
-
+                    /* again if any of this info is missing open up the settings acticity */
                     if (username == null || type == null || os == null || mac == null) {
                         Intent settingsActIntent = new Intent(getBaseContext(), SettingsActivity.class);
                         startActivity(settingsActIntent);
                         Toast.makeText(getApplicationContext(), "Please Enter Information About Device!",
                                 Toast.LENGTH_LONG).show();
-                    } else if (!buildingEditText.getText().toString().matches("") && radioId != -1) {
+                    }
+
+                    /* Checks to make sure a radio option was selected and a building name entered */
+                    else if (!buildingEditText.getText().toString().matches("") && radioId != -1) {
                         RadioButton radioButton = radioGroup.findViewById(radioId);
                         Intent swatActIntent = new Intent(getBaseContext(), SwatActivity.class);
                         File outputFile = createSessionFile(radioButton.getText().toString());
@@ -130,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
                             return;
                         }
 
+                        /* Passes all this data to the swat activity */
                         swatActIntent.putExtra("buildingName", buildingEditText.getText().toString());
                         swatActIntent.putExtra("outputFile", outputFile);
                         swatActIntent.putExtra("username", username);
@@ -140,57 +155,60 @@ public class MainActivity extends AppCompatActivity {
 
                         startActivity(swatActIntent);
                     } else {
-                        Toast.makeText(getApplicationContext(), "Please Enter Building Name!",
+                        Toast.makeText(getApplicationContext(), "Please Enter Building Name and Choose a Network to Test!",
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         });
+        /* End begin session button onclick */
 
-        continueSessionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        //TODO load files
+//        continueSessionButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                if (ActivityCompat.checkSelfPermission(getBaseContext(),
+//                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//                        != PackageManager.PERMISSION_GRANTED) {
+//                    Toast.makeText(getApplicationContext(), "This Device does not have access to write to external storage!" +
+//                            " Please enable this permission in settings!", Toast.LENGTH_LONG).show();
+//                }else {
+//
+//                    pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+//                    String username = pref.getString("username", null);
+//                    String type = pref.getString("type", null);
+//                    String os = pref.getString("os", null);
+//                    String mac = pref.getString("mac", null);
+//
+//                    int radioId = radioGroup.getCheckedRadioButtonId();
+//
+//
+//                    if (username == null || type == null || os == null || mac == null) {
+//                        Intent settingsActIntent = new Intent(getBaseContext(), SettingsActivity.class);
+//                        startActivity(settingsActIntent);
+//                        Toast.makeText(getApplicationContext(), "Please Enter Information About Device!",
+//                                Toast.LENGTH_LONG).show();
+//                    } else {
+//
+//                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//                        intent.setType("text/*");
+//                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+//
+//                        try {
+//                            startActivityForResult(
+//                                    Intent.createChooser(intent, "Select a File to Upload"),
+//                                    0);
+//                        } catch (android.content.ActivityNotFoundException ex) {
+//                            // Potentially direct the user to the Market with a Dialog
+//                            Toast.makeText(MainActivity.this, "Please install a File Manager.", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                }
+//            }
+//        });
 
-                if (ActivityCompat.checkSelfPermission(getBaseContext(),
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getApplicationContext(), "This Device does not have access to write to external storage!" +
-                            " Please enable this permission in settings!", Toast.LENGTH_LONG).show();
-                }else {
-
-                    pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
-                    String username = pref.getString("username", null);
-                    String type = pref.getString("type", null);
-                    String os = pref.getString("os", null);
-                    String mac = pref.getString("mac", null);
-
-                    int radioId = radioGroup.getCheckedRadioButtonId();
-
-
-                    if (username == null || type == null || os == null || mac == null) {
-                        Intent settingsActIntent = new Intent(getBaseContext(), SettingsActivity.class);
-                        startActivity(settingsActIntent);
-                        Toast.makeText(getApplicationContext(), "Please Enter Information About Device!",
-                                Toast.LENGTH_LONG).show();
-                    } else {
-
-                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                        intent.setType("text/*");
-                        intent.addCategory(Intent.CATEGORY_OPENABLE);
-
-                        try {
-                            startActivityForResult(
-                                    Intent.createChooser(intent, "Select a File to Upload"),
-                                    0);
-                        } catch (android.content.ActivityNotFoundException ex) {
-                            // Potentially direct the user to the Market with a Dialog
-                            Toast.makeText(MainActivity.this, "Please install a File Manager.", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-            }
-        });
-
+        /* Settings button onclick */
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -202,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+    /*Todo load files (this method get called when the file selector returns a file)*/
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -269,6 +287,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*Creates the file in which the swat data is stored*/
     public File createSessionFile(String networkToTest){
         String pattern = "yyyy-MM-dd HH_mm_" +
                 "ss";

@@ -26,6 +26,7 @@ import android.widget.Toast;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -106,14 +107,14 @@ public class SwatActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(validateFields()) {
-                    if(networkToTest.equals(getNetworkSSID()) || networkToTest.equals("Other")) {
+                    if(networkToTest.equals(getNetworkSSID().replaceAll("\"", "")) || networkToTest.equals("Other")) {
                         pullSwatInfo();
                         uploadEditText.setText("");
                         downloadEditText.setText("");
                         locationEditText.setText("");
                     }else{
-                        Toast.makeText(SwatActivity.this, "You are not currently connected to: " + networkToTest +". This was" +
-                                " selected as the network for this session, please switch networks.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(SwatActivity.this, "You are currently connected to: " + getNetworkSSID().replaceAll("\"", "") +". Please connect to "+ networkToTest +
+                                " to continue this session!", Toast.LENGTH_LONG).show();
                     }
                 }else{
                     Toast.makeText(SwatActivity.this, "Please fill in all fields before doing a swat!", Toast.LENGTH_SHORT).show();
@@ -181,6 +182,7 @@ public class SwatActivity extends AppCompatActivity {
         arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, swatListString);
         swatListView.setAdapter(arrayAdapter);
 
+        //When an item on the swat list is clicked open up a dialog with the info
         swatListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -257,6 +259,47 @@ public class SwatActivity extends AppCompatActivity {
 
     }
 
+    //This was supposed to allow you to leave the app, have it cleared from RAM but reopen it safely.
+    //It was buggy and uneccessary
+//    @Override
+//    public void onSaveInstanceState(Bundle savedInstanceState) {
+//        super.onSaveInstanceState(savedInstanceState);
+//        // Save UI state changes to the savedInstanceState.
+//        // This bundle will be passed to onCreate if the process is
+//        // killed and restarted.
+//
+//
+//       ArrayList<String> bundleArr = new ArrayList<>();
+//       for(String[] j: swatList){
+//           String tString = "";
+//           if(j.length > 1){
+//               tString = j[0];
+//               for(int i = 1; i < j.length; i++){
+//                   tString += "<<-delim->>" + j[i];
+//               }
+//           }else if(j.length == 0){
+//               tString = j[0];
+//           }
+//           bundleArr.add(tString);
+//       }
+//
+//       savedInstanceState.putStringArrayList("swatList", bundleArr);
+//       savedInstanceState.putStringArrayList("swatListString", swatListString);
+//        // etc.
+//    }
+//
+//
+//    @Override
+//    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+//        super.onRestoreInstanceState(savedInstanceState);
+//        ArrayList<String> bundleArr = savedInstanceState.getStringArrayList("swatList");
+//        swatListString = savedInstanceState.getStringArrayList("swatListString");
+//        for(String st : bundleArr){
+//            swatList.add(st.split("<<-delim->>"));
+//        }
+//        arrayAdapter.notifyDataSetChanged();
+//    }
+
     public void pullSwatInfo(){
         stagingArr[0]   = getDate();
         stagingArr[1]   = getTime();
@@ -332,7 +375,8 @@ public class SwatActivity extends AppCompatActivity {
 
         for (ScanResult s : wifiScan) {
             if (s.level > -80 && !s.SSID.contains("PITT") && !s.SSID.equals("eduroam")) {
-            nonPitt.add(s.SSID);
+                if(!nonPitt.contains(s.SSID))
+                    nonPitt.add(s.SSID);
             }
         }
         String out = "";

@@ -54,6 +54,7 @@
         >
 
         <EditText
+            android:backgroundTint="@color/colorPrimary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/downloadEditText"
@@ -66,6 +67,7 @@
             />
 
         <EditText
+            android:backgroundTint="@color/colorPrimary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/uploadEditText"
@@ -79,6 +81,8 @@
             />
 
         <Button
+            android:backgroundTint="@color/colorAccent"
+            android:textColor="@android:color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/speedTestButton"
@@ -92,6 +96,7 @@
     </LinearLayout>
 
     <EditText
+        android:backgroundTint="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/locationEditText"
@@ -104,6 +109,8 @@
         />
 
     <Button
+        android:backgroundTint="@color/colorAccent"
+        android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/doASwatButton"
@@ -153,6 +160,8 @@
         >
 
         <Button
+            android:backgroundTint="@color/colorAccent"
+            android:textColor="@android:color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
