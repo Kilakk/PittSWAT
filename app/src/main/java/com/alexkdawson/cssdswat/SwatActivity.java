@@ -334,7 +334,7 @@ public class SwatActivity extends AppCompatActivity {
     }
 
     public String getDate(){
-        String pattern = "dd-MM-yyyy";
+        String pattern = "MM-dd-yyyy";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         String date = simpleDateFormat.format(new Date());
         return date;
