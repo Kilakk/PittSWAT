@@ -139,7 +139,7 @@ public class SwatActivity extends AppCompatActivity {
                 Uri path =FileProvider.getUriForFile(SwatActivity.this, "com.alexkdawson.fileprovider", outputFile);
                 Intent emailIntent = new Intent(Intent.ACTION_SEND);
                 emailIntent .setType("vnd.android.cursor.dir/email");
-                String to[] = {"hlc47@pitt.edu", "kateulreich@pitt.edu", "djm201@pitt.edu"};
+                String to[] = {"CSSD-StudentTechSupervisors@pitt.edu"};
                 emailIntent .putExtra(Intent.EXTRA_EMAIL, to);
 // the attachment
                 emailIntent .putExtra(Intent.EXTRA_STREAM, path);
