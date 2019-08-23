@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Pitt Wifi</string>
+    <string name="swat">SWAT</string>
+    <string name="pitt_information_technology">Pitt Information Technology</string>
+    <string name="building_name_prompt">Building Name (e.g. \'Tower A\')</string>
+    <string name="wireless_pittnet">WIRELESS-PITTNET</string>
+    <string name="start_swating">Start SWATing</string>
+    <string name="which_network">Which network will you be testing?</string>
+    <string name="wireless_pittnet_fast">WIRELESS-PITTNET-FAST</string>
+    <string name="other">Other</string>
+    <string name="myresnet">MyResNet</string>
+    <string name="myresnet_legacy">MyResNet Legacy</string>
 </resources>
